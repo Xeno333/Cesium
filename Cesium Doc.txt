@@ -52,6 +52,7 @@ Keywords:
 		
 	Objects:
 		class 	-	Declare a class. Usage: class <name> <<Inheratance>>
+		self	-	Self is a pointer to itself.
 		
 
 
