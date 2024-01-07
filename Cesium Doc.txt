@@ -4,6 +4,7 @@ Compiled to C then useses gcc
 
 remember to add ... args in C
 
+--This is not going to be suported in first version so do not use ;
 ; is optianal but can be used if more then one statement on line
 
 Keywords:
@@ -53,6 +54,7 @@ Keywords:
 	Objects:
 		class 	-	Declare a class. Usage: class <name> <<Inheratance>>
 		self	-	Self is a pointer to itself.
+		scope	-	Esentuly a namespace.
 		
 
 

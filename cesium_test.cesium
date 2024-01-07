@@ -1,0 +1,37 @@
+//include stdio.h for printf
+c {
+    #include <stdio.h>
+}
+
+cref func printf(u8* c, ...)
+
+func print_num(i64 i) {
+    //Cref
+    printf("%x", i)
+}
+
+//example add
+func add(i64 i1, i64 i2) : i64 {
+    return i1 + i2
+}
+
+
+//main function
+func main() : i64 {
+    //example array
+    u8 array[3] = {0, 0, 0}
+    
+    //exapmle number
+    i64 i = 50
+    // get return type
+	mut i64 r = add(i, 50)
+	
+	//cast to other
+	i32 r32 = r : i32
+	
+	//check logic
+	if (r == 100) {
+	    return 0
+	}
+	return 1
+}
