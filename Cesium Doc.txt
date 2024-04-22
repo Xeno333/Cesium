@@ -4,7 +4,6 @@ Compiled to C then useses gcc
 
 remember to add ... args in C
 
---This is not going to be suported in first version so do not use ;
 ; is optianal but can be used if more then one statement on line
 
 Keywords:
@@ -20,7 +19,7 @@ Keywords:
 		while	-	Same as while in C.
 		break	-	Break loop.
 		continue-	Return to start of loop.
-		c	-	Compile this block as C code.
+		c	-	Compile this block as C code. Proto open with c{\n close with }c\n For Alpha only
 		asm	-	Compile this block as asm.
 		
 	Definitions:
@@ -39,19 +38,18 @@ Keywords:
 		enum	-	Same as C "enum"
 		bool	-	'true' or 'false'
 		
-	Qualifiers:
+	Qualifiers comes before dec:
 		mut	-	Make a varible mutable as all are immutible by default.
 		static	-	Make a varible keep its value even when out of scope.
 		register-	Tell compiler to place in a register. (Only works on local registers.)
-		local	-	Makes function or global var local to file.
 		volital	-	Volital.
 		
-	Compile time:
-		include	-	Include other file.
+	Compile time(Macro and const will not be in the placeholder compiler):
+		import	-	Include other file.
 		const	-	Define a compile time value.
 		macro	-	Macro's used at compile time.
 		
-	Objects:
+	Objects: - may not be implimented in version Alpha 1
 		class 	-	Declare a class. Usage: class <name> <<Inheratance>>
 		self	-	Self is a pointer to itself.
 		scope	-	Esentuly a namespace.
