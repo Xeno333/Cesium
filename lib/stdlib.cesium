@@ -1,0 +1,4 @@
+
+func fget(u8* fn, mut u8* block) : u8* {
+    return block;
+}
