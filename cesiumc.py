@@ -1,6 +1,7 @@
 import sys
 import re
 import os
+import subprocess
 
 #Line count
 lc = 0
@@ -181,15 +182,11 @@ def do_block(s):
 				skip += 1
 				if part.isspace() == True:
 					continue
-				if part in ["=", ",", "{", "}", "[", "]", "*", "(", ")", "+", "-", "|", "&", "^", "~", "!", ">", "<", "?"]:
+				if part in ["=", ",", "{", "}", "[", "]", "(", ")", "+", "-", "|", "&", "^", "~", "!", ">", "<", "?"]:
 					skip -= 1
 					break
-				if not part in ces_type:
-					print("Error tried to cast to invalid type at line ", lc, "!")
-					exit()
 				ol.append(ces_type[part])
 
-			
 			l1 = re.split("([^a-zA-Z0-9_ \t])", out)
 			p = len(l1)
 			bd = 0
@@ -246,7 +243,6 @@ def do_block(s):
 				out += part
 				continue
 
-			#do func
 
 
 
@@ -286,15 +282,18 @@ def strip_comment(line):
 			continue
 
 		#hanndel comments
-		if part == "/" and line[p] == "/" and string == False:
-			break
-		elif part == "/" and line[p] == "*" and string == False:
-			c_block = True
-			continue
-		elif part == "*" and line[p] == "/" and string == False:
-			c_block = False
-			c_block_e = True
-			continue
+		try:
+			if part == "/" and line[p] == "/" and string == False:
+				break
+			elif part == "/" and line[p] == "*" and string == False:
+				c_block = True
+				continue
+			elif part == "*" and line[p] == "/" and string == False:
+				c_block = False
+				c_block_e = True
+				continue
+		except:
+			null = 0
 
 		if c_block == False:
 			done.append(part)
@@ -421,7 +420,7 @@ def compile_line(line):
 						break
 					
 					if bc == 1 and part == ",":
-						output += compile_line("".join(v)) + ","
+						output += compile_line("".join(v).strip()) + ","
 						v = []
 						continue
 
@@ -510,7 +509,7 @@ def compile_line(line):
 							break
 						
 						if bc == 1 and part == ",":
-							output += compile_line("".join(v)) + ","
+							output += compile_line("".join(v).strip()) + ","
 							v = []
 							continue
 
@@ -739,9 +738,11 @@ while True:
 	else:
 		file += done + "\n"
 
-print(file)
+#print(file)
 
 
-fout = open(sys.argv[2], "w")
+fout = open(sys.argv[2]+".c", "w")
 fout.write(file)
 fout.close() 
+
+subprocess.call("gcc " + sys.argv[2] + ".c -o" + sys.argv[2], shell=True)

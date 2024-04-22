@@ -1,4 +1,18 @@
+c{
+    #include<stdio.h>
+}c
 
-func fget(u8* fn, mut u8* block) : u8* {
-    return block;
+cref func fopen(i8* fn, i8* op) : i64
+cref func fclose(u64 f) : i32
+
+
+func fget(u8* fn, mut i8* block, u64 size) : u8* {
+    u64 f = (fopen(fn, "rb") : u64)
+
+
+    fclose(f)
+
+    return block
 }
+
+func fsize(u8* fb) : i64
