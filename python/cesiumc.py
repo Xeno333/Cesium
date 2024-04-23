@@ -1,20 +1,13 @@
 import sys
 import re
-
-fin = open(sys.argv[1], "r")
-input = fin.read()
-fin.close()
+import os
+import subprocess
 
 #Line count
 lc = 0
 cflag = False
 #asmflag = False
 c_block_nest_num = 0
-
-file = "#define cesium_main main\n"
-list_of_lines1 = input.split("\n")
-list_of_lines = []
-
 arrayc = 0
 
 
@@ -22,13 +15,37 @@ arrayc = 0
 declared = {}
 cref = []
 
+#output
+file = "#define cesium_main main\n"
 
-#get list of lines from file
-for line in list_of_lines1:
-	if line.lstrip() == "\n" or line.lstrip() == "":
-		continue
-	list_of_lines.append(line.strip())
 
+
+list_of_lines = []
+
+try:
+	incp = sys.argv[3]
+except:
+	incp = ""
+
+def get_source(f):
+	lout = []
+
+	fin = open(f, "r")
+	input = fin.read()
+	fin.close()
+
+	list_of_lines1 = input.split("\n")
+
+	#get list of lines from file
+	for line in list_of_lines1:
+		if line.lstrip() == "\n" or line.lstrip() == "":
+			continue
+		lout.append(line.strip())
+
+	return lout
+
+
+list_of_lines = get_source(sys.argv[1])
 
 
 ces_type = {
@@ -165,15 +182,11 @@ def do_block(s):
 				skip += 1
 				if part.isspace() == True:
 					continue
-				if part in ["=", ",", "{", "}", "[", "]", "*", "(", ")", "+", "-", "|", "&", "^", "~", "!", ">", "<", "?"]:
+				if part in ["=", ",", "{", "}", "[", "]", "(", ")", "+", "-", "|", "&", "^", "~", "!", ">", "<", "?"]:
 					skip -= 1
 					break
-				if not part in ces_type:
-					print("Error tried to cast to invalid type at line ", lc, "!")
-					exit()
 				ol.append(ces_type[part])
 
-			
 			l1 = re.split("([^a-zA-Z0-9_ \t])", out)
 			p = len(l1)
 			bd = 0
@@ -230,7 +243,6 @@ def do_block(s):
 				out += part
 				continue
 
-			#do func
 
 
 
@@ -270,15 +282,18 @@ def strip_comment(line):
 			continue
 
 		#hanndel comments
-		if part == "/" and line[p] == "/" and string == False:
-			break
-		elif part == "/" and line[p] == "*" and string == False:
-			c_block = True
-			continue
-		elif part == "*" and line[p] == "/" and string == False:
-			c_block = False
-			c_block_e = True
-			continue
+		try:
+			if part == "/" and line[p] == "/" and string == False:
+				break
+			elif part == "/" and line[p] == "*" and string == False:
+				c_block = True
+				continue
+			elif part == "*" and line[p] == "/" and string == False:
+				c_block = False
+				c_block_e = True
+				continue
+		except:
+			null = 0
 
 		if c_block == False:
 			done.append(part)
@@ -295,6 +310,7 @@ def strip_comment(line):
 
 
 def compile_line(line):
+	
 	if line == "...":
 		return "..."
 
@@ -327,6 +343,28 @@ def compile_line(line):
 		output += do_block(parts)
 		return output
 
+	if parts[0] == "import":
+		global list_of_lines
+		im = ""
+
+		i = 1
+		for part in parts[i:]:
+			i += 1
+			if part.isspace() == True:
+				continue
+			i -= 1
+			break
+
+		for part in parts[i:]:
+			im += part
+		
+		if incp == "":
+			im = os.path.dirname(os.path.abspath(__file__)) + "/lib/" + im
+
+		list_of_lines = list_of_lines[:lc] + get_source(im) + list_of_lines[lc:]
+
+		return output
+
 	if parts[0] == "func":
 		p = ""
 		i = 0
@@ -351,9 +389,9 @@ def compile_line(line):
 					p += part
 				break
 		#type
-		if (do_block(list(filter(None, re.split("([^a-zA-Z0-9_])", p.strip()))))).strip("()") == "":
+		if (do_block(list(filter(None, re.split("([^a-zA-Z0-9_])", p.strip()))))).replace(')', '').replace('(', '') == "":
 			output += "void"
-		output += (do_block(list(filter(None, re.split("([^a-zA-Z0-9_])", p.strip()))))).strip("()") + " "
+		output += (do_block(list(filter(None, re.split("([^a-zA-Z0-9_])", p.strip()))))).replace(')', '').replace('(', '') + " "
 
 		p = 0
 		for part in parts[1:]:
@@ -382,7 +420,7 @@ def compile_line(line):
 						break
 					
 					if bc == 1 and part == ",":
-						output += compile_line("".join(v)) + ","
+						output += compile_line("".join(v).strip()) + ","
 						v = []
 						continue
 
@@ -471,7 +509,7 @@ def compile_line(line):
 							break
 						
 						if bc == 1 and part == ",":
-							output += compile_line("".join(v)) + ","
+							output += compile_line("".join(v).strip()) + ","
 							v = []
 							continue
 
@@ -683,9 +721,15 @@ def compile_line(line):
 
 
 
-for line in list_of_lines:
+while True:
+	if lc == len(list_of_lines):
+		break
+
+	line = list_of_lines[lc]
 	lc += 1
+	
 	done = compile_line(line)
+
 	if done == "":
 		continue
 	if arrayc == 0:
@@ -694,9 +738,11 @@ for line in list_of_lines:
 	else:
 		file += done + "\n"
 
-print(file)
+#print(file)
 
 
-fout = open(sys.argv[2], "w")
+fout = open(sys.argv[2]+".c", "w")
 fout.write(file)
 fout.close() 
+
+subprocess.call("gcc " + sys.argv[2] + ".c -o" + sys.argv[2], shell=True)

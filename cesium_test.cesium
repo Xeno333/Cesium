@@ -1,54 +1,13 @@
-//include stdio.h for printf
-c{
-    #include <stdio.h>
-    long long int ci = 1;
-}c
+import stdlib.cesium
 
-cref func printf(u8* c, ...) : i16
 
-cref i64 ci
 
-func print_num(i64 i) {
-    //Cref
-    printf("%lli", i)
-}
-
-//example add
-func add(i64 i1, i64 i2) : i64 {
-    return i1 + i2
-}
 
 
 //main function
-func main() : i64 {
-    //example array
-    u8 /*Test comment*/array[3] = {0, 0, 0}
+func main() : i32 {
+    printf("Hello from cesium!\n")
 
-    u8 str[] = "Hello"
 
-    printf("%s", str)
-
-    i64 a[123] = {1, 
-        2, 
-        3
-    }
-
-    //exapmle number
-    i64 i = ci
-    // get return type
-	mut i64 r = add(i, 50)
-
-    /*for (u64 i = 0; i != 100; i++) 
-    {
-        i64 i3 = ci
-    }*/
-	
-	//cast to other
-	i32 r32 = ((r : i64) + r) : i32
-	
-	//check logic
-	if (r == 100) {
-	    return 0
-	}
-	return 1
+	return 0
 }

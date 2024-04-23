@@ -49,7 +49,7 @@ Keywords:
 		const	-	Define a compile time value.
 		macro	-	Macro's used at compile time.
 		
-	Objects: - may not be implimented in version Alpha 1
+	Objects: - not going to be in pre version
 		class 	-	Declare a class. Usage: class <name> <<Inheratance>>
 		self	-	Self is a pointer to itself.
 		scope	-	Esentuly a namespace.
