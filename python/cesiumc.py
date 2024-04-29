@@ -53,7 +53,7 @@ ces_type = {
 	"i16":"short int",
 	"i8":"signed char",
 	"u64":"unsigned long long int",
-	"u32":"unsigned ing",
+	"u32":"unsigned int",
 	"u16":"unsigned short int",
 	"u8":"unsigned char",
 	"f64":"double",
@@ -576,5 +576,5 @@ fout = open(sys.argv[2]+".c", "w")
 fout.write(file)
 fout.close() 
 
-if not subprocess.call("gcc " + sys.argv[2] + ".c -m64 -o" + sys.argv[2], shell=True) == 0:
+if not subprocess.call("gcc " + sys.argv[2] + ".c -m64 -ansi -o" + sys.argv[2], shell=True) == 0:
 	print("Error!!!!!")

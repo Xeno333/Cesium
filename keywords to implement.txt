@@ -9,7 +9,7 @@
 		break	-	Break loop.
 		continue-	Return to start of loop.
 		c	-	Compile this block as C code. Proto open with c{\n close with }c\n For Alpha only
-		asm	-	Compile this block as asm.
+		!NO!	asm	-	Compile this block as asm.
 		i64	-	64 bit int.
 		i32	-	32 bit int.
 		i16	-	16 bit int.

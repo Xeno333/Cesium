@@ -4,12 +4,29 @@ c{
 }c
 
 
-mut u8* fin
+//req free
+mut u8* fin = NULL
+mut u8* foutmid = NULL
+mut u8* gcc_args = NULL
+mut u8* foutc = NULL
+
+//other
+mut u8* fout = NULL
 
 
 func leave() : i32 {
-	free(fin)
-
+	if (fin != NULL) {
+		free(fin)
+	}
+	if (foutc != NULL) {
+		free(foutc)
+	}
+	if (foutmid != NULL) {
+		free(foutmid)
+	}
+	if (gcc_args != NULL) {
+		free(gcc_args)
+	}
 
 	printf("\n")
 	return 0
@@ -58,8 +75,7 @@ func getlinelen(u8* str) : u64 {
 }
 
 func parse_line(u8* line)  : u8* {
-	mut u8* line2 = malloc(1)
-	line2[0] = 0
+	//strimp spaces
 
 	//dopart
 	if (startswith(line, "import")) {
@@ -73,7 +89,11 @@ func parse_line(u8* line)  : u8* {
 		}
 		return line + p
 	}
-
+	if (startswith(line, "break")) {
+		append(foutmid, "break\n", (getstrlen("break\n") - 1) : u64)
+		append(foutmid, "ENDSTATEMENT\n", (getstrlen("ENDSTATEMENT\n") - 1) : u64)
+		return NULL
+	}
 
 	return NULL//line2
 }
@@ -153,17 +173,47 @@ func parse(u8* f) {
 
 //main function
 func main(i32 argc, u8** args) : i32 {
-	printf("Hello from cesiumc!\nRunning command: ")
+	//printf("Hello from cesiumc!\nRunning command: ")
 
-	mut u64 i = 0
+	mut u64 i = 2
+	mut u64 out_args_len = 1
 	while (i != argc) {
-		printf("%s ", args[i])
+		out_args_len += (getstrlen(args[i])) : u64
 		i++
 	}
 
+	gcc_args = malloc(out_args_len)
+	gcc_args[0] = 0
+	strcat
+
+	i = 2
+	while (i != argc) {
+		strcat(gcc_args, args[i])
+		strcat(gcc_args, " ")
+		i++
+	}
+
+	foutmid = malloc((getstrlen(args[1]) + getstrlen(".midpoint") - 1) : u64)
+	strcpy(foutmid, args[1])
+	strcat(foutmid, ".midpoint")
+
+	foutc = malloc((getstrlen(args[1]) + getstrlen(".c") - 1) : u64)
+	strcpy(foutc, args[1])
+	strcat(foutc, ".c")
+
+
 	fin = fget(args[1])
 
-	parse(fin)
+	//parse(fin)
+
+	mut u8* cmd = malloc(getstrlen(gcc_args) + getstrlen(foutc) + getstrlen("gcc "))
+	strcpy(cmd, "gcc ")
+	strcat(cmd, foutc)
+	strcat(cmd, " ")
+	strcat(cmd, gcc_args)
+	printf("\nCompile with: %s\n\n", cmd)
+	//system(cmd)
+	free(cmd)
 
 	return leave()
 }

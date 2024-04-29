@@ -25,14 +25,14 @@ func printbool(bool v) {
 	}
 }
 
-func append(u8* fn, u8 block, u64 size) : i32 {
-	u64 f = fopen(fn, "a")
+func append(u8* fn, u8* block, u64 size) : i32 {
+	u64* f = fopen(fn, "a")
 	fwrite(block, 1, size, f)
 	return 0
 }
 
 func fsize(u8* fn) : u64 {
-    u64 f = (fopen(fn, "rb") : u64)
+    u64* f = (fopen(fn, "rb") : u64)
     fseek(f, 0, SEEK_END)
     u64 size = ftell(f)
     fclose(f)
@@ -40,7 +40,7 @@ func fsize(u8* fn) : u64 {
 }
 
 func fget(u8* fn) : u8* {
-    u64 f = (fopen(fn, "rb") : u64)
+    u64* f = (fopen(fn, "rb") : u64)
 	if (f == NULL) {
 		return NULL
 	}

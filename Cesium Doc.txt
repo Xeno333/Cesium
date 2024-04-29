@@ -20,7 +20,7 @@ Keywords:
 		break	-	Break loop.
 		continue-	Return to start of loop.
 		c	-	Compile this block as C code. Proto open with c{\n close with }c\n For Alpha only
-		asm	-	Compile this block as asm.
+		!Bad idea! asm	-	Compile this block as asm.
 		
 	Definitions:
 		i64	-	64 bit int.
