@@ -1,0 +1,169 @@
+import stdlib.cesium
+c{
+	#include <unistd.h>
+}c
+
+
+mut u8* fin
+
+
+func leave() : i32 {
+	free(fin)
+
+
+	printf("\n")
+	return 0
+}
+
+
+//checks if s1 starts with s2 and directly after s2 in s1, s1 ends with ' ' or '\t'
+func startswith(u8* s1, u8* s2) : bool {
+	mut u64 p = -1
+
+	while (true) {
+		p++
+
+		//if p2 ends
+		if (s2[p] == 0) {
+			break
+		}
+
+		//compare
+		if (s2[p] == s1[p]) {
+			continue
+		}
+
+		//if s1 is ended
+		if (s1[p] == 0) {
+			return false
+		}
+		//if not equal
+		return false
+	}
+
+	if ((s1[p] == '\t') || (s1[p] == ' ')) {
+		return true
+	}
+
+	return false
+}
+
+func getlinelen(u8* str) : u64 {
+    mut u64 r = 0
+    while ((str[r] != '\n') && (str[r] != 0) && (str[r] != ';')) {
+        r++
+    }
+    r++
+    return r
+}
+
+func parse_line(u8* line)  : u8* {
+	mut u8* line2 = malloc(1)
+	line2[0] = 0
+
+	//dopart
+	if (startswith(line, "import")) {
+		mut u64 p = 6
+		while (true) {
+			if ((line[p] == ' ') || (line[p] == '\t')) {
+				p++
+				continue
+			}
+			break
+		}
+		return line + p
+	}
+
+
+	return NULL//line2
+}
+
+func gimpf(u8* fn, mut u8* block) : u8* {
+	if (startswith(fn, "/") || startswith(fn, ".") || startswith(fn, "~")) {
+		return fn
+	}
+
+	mut u8 b1[2048]
+	readlink("/proc/self/exe", b1, 2048-270)
+	u8 *last_slash = strrchr(b1, '/');
+	*last_slash = 0
+	strcpy(block, b1)
+	strcat(block, "/lib/")
+	strcat(block, fn)
+	return block
+}
+
+func parse(u8* f) {
+	mut u64 e = getstrlen(f)
+	mut u64 p = 0
+
+	//loop lines
+	while (p <= e) {
+		u64 llen = getlinelen((f+p))
+		mut u8* l = malloc(llen)
+
+		mut u64 i = 0
+		while (i != (llen - 1)) {
+			l[i] = (f+p)[i]
+			i++
+		}
+		l[i] = 0
+
+		//Import
+		if (parse_line(l) != NULL) {
+			char path[2048];
+			u8* fimp = fget(gimpf(parse_line(l), path))
+			u64 fimps = getstrlen(fimp)
+			mut u8* block = malloc(e + fimps + 1)
+
+			//do import
+			mut u64 p1 = 0
+			mut u64 p2 = 0
+			while (p2 != p) {
+				block[p1++] = f[p2++]
+			}
+			p2 = 0
+			while (p2 != fimps-1) {
+				block[p1++] = fimp[p2++]
+			}
+			p2 = p + llen
+			while (p2 != e+1) {
+				block[p1++] = f[p2++]
+			}
+
+			printf("%s", block)
+
+			//Next part
+			
+			free(fimp)
+
+			free(f)
+			f = block
+			e = getstrlen(f)
+		}
+		
+		free(l)
+		p += llen
+	}
+	
+	return
+}
+
+
+
+//main function
+func main(i32 argc, u8** args) : i32 {
+	printf("Hello from cesiumc!\nRunning command: ")
+
+	mut u64 i = 0
+	while (i != argc) {
+		printf("%s ", args[i])
+		i++
+	}
+
+	fin = fget(args[1])
+
+	parse(fin)
+
+	return leave()
+}
