@@ -10,6 +10,9 @@ mut u8* foutmid = NULL
 mut u8* gcc_args = NULL
 mut u8* foutc = NULL
 
+mut u64 clayer = 0
+mut bool cflag = true
+
 //other
 mut u8* fout = NULL
 
@@ -58,7 +61,7 @@ func startswith(u8* s1, u8* s2) : bool {
 		return false
 	}
 
-	if ((s1[p] == '\t') || (s1[p] == ' ') || (s1[p] == 0)) {
+	if (u8isin("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_", getstrlen("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_") - 1, s1[p]) == false) {
 		return true
 	}
 
@@ -137,6 +140,8 @@ func parse_line(u8* in)  : u8* {
 		return NULL
 	}
 
+
+
 	return NULL//line2
 }
 
@@ -171,10 +176,39 @@ func parse() {
 		}
 		l[i] = 0
 
+		mut u64 offset = 0
+		while ((l[offset] == ' ') || (l[offset] == '\t')) {
+			offset++
+		}
+		
+		u8* line = l + offset
+
+		if (startswith(line, "c")) {
+			cflag = true
+			mut u64 i = 0
+			while (line[i] != 0) {
+				if (line[i] == 0x7b/*{*/) {
+					clayer++
+				}
+				if (line[i] == 0x7d/*}*/) {
+					clayer--
+				}
+				i++
+			}
+
+			free(l)
+			p += llen
+			continue
+		}
+
 		//Import
 		if (parse_line(l) != NULL) {
 			char path[2048];
 			u8* fimp = fget(gimpf(parse_line(l), path))
+			if (fimp == NULL) {
+				printf("ERROR: Could not read: %s\n", fimp)
+				return leave()
+			}
 			u64 fimps = getstrlen(fimp)
 			mut u8* block = malloc(e + fimps + 1)
 
@@ -235,16 +269,28 @@ func main(i32 argc, u8** args) : i32 {
 	strcpy(foutmid, args[1])
 	strcat(foutmid, ".midpoint")
 	u64* f = fopen(foutmid, "w")
+	if (f == NULL) {
+		printf("ERROR: Could not open: %s\n", foutmid)
+		return leave()
+	}
     fclose(f)
 
 	foutc = malloc((getstrlen(args[1]) + getstrlen(".c") - 1) : u64)
 	strcpy(foutc, args[1])
 	strcat(foutc, ".c")
 	f = fopen(foutc, "w")
+	if (f == NULL) {
+		printf("ERROR: Could not open: %s\n", foutc)
+		return leave()
+	}
     fclose(f)
 
 
 	fin = fget(args[1])
+	if (fin == NULL) {
+		printf("ERROR: Could not read: %s\n", args[1])
+		return leave()
+	}
 
 	parse()
 

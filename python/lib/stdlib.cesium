@@ -25,11 +25,34 @@ func printbool(bool v) {
 	}
 }
 
-func append(u8* fn, u8* block, u64 size) : i32 {
+func append(u8* fn, u8* block, u64 size) : u64 {
+	if (block == NULL) {
+		return NULL
+	}
 	u64* f = fopen(fn, "a")
+	if (f == NULL) {
+		return NULL
+	}
 	fwrite(block, 1, size, f)
     fclose(f)
-	return 0
+	return block
+}
+
+
+func u8isin(u8* keys, u64 ks, u8 part) : bool {
+    if (ks < 1) {
+        return false 
+    }
+
+    mut u64 p = 0
+    while (p < ks) {
+       if (keys[p] == part) {
+            return true
+       }
+       p++
+    }
+
+    return false
 }
 
 
@@ -42,12 +65,18 @@ func fsize(u8* fn) : u64 {
 }
 
 func fget(u8* fn) : u8* {
+	if (fn == NULL) {
+		return NULL
+	}
     u64* f = (fopen(fn, "rb") : u64)
 	if (f == NULL) {
 		return NULL
 	}
     u64 size = fsize(fn)
     mut u8* block = malloc(size+1)
+	if (block == NULL) {
+		return NULL
+	}
     fread(block, 1, size, f)
     fclose(f)
     block[size+1] = 0
