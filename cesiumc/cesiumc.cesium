@@ -58,7 +58,7 @@ func startswith(u8* s1, u8* s2) : bool {
 		return false
 	}
 
-	if ((s1[p] == '\t') || (s1[p] == ' ')) {
+	if ((s1[p] == '\t') || (s1[p] == ' ') || (s1[p] == 0)) {
 		return true
 	}
 
@@ -74,8 +74,21 @@ func getlinelen(u8* str) : u64 {
     return r
 }
 
-func parse_line(u8* line)  : u8* {
-	//strimp spaces
+
+func do_block(u8* block) : u8* {
+	
+}
+
+
+mut u64 parse_layer = 0
+
+func parse_line(u8* in)  : u8* {
+	mut u64 offset = 0
+	while ((in[offset] == ' ') || (in[offset] == '\t')) {
+		offset++
+	}
+	
+	u8* line = in + offset
 
 	//dopart
 	if (startswith(line, "import")) {
@@ -90,8 +103,37 @@ func parse_line(u8* line)  : u8* {
 		return line + p
 	}
 	if (startswith(line, "break")) {
+		parse_layer++
+		u8* lay = malloc(parse_layer + 2)
+		strcpy(lay, "")
+		mut u64 p = 0
+		while (p != parse_layer) {
+			strcat(lay, ":")
+			p++
+		} 
+		strcat(lay, ">")
+		append(foutmid, lay, (getstrlen(lay) - 1) : u64)
 		append(foutmid, "break\n", (getstrlen("break\n") - 1) : u64)
+		append(foutmid, lay, (getstrlen(lay) - 1) : u64)
 		append(foutmid, "ENDSTATEMENT\n", (getstrlen("ENDSTATEMENT\n") - 1) : u64)
+		parse_layer--
+		return NULL
+	}
+	if (startswith(line, "continue")) {
+		parse_layer++
+		u8* lay = malloc(parse_layer + 2)
+		strcpy(lay, "")
+		mut u64 p = 0
+		while (p != parse_layer) {
+			p++
+			strcat(lay, ":")
+		} 
+		strcat(lay, ">")
+		append(foutmid, lay, (getstrlen(lay) - 1) : u64)
+		append(foutmid, "continue\n", (getstrlen("continue\n") - 1) : u64)
+		append(foutmid, lay, (getstrlen(lay) - 1) : u64)
+		append(foutmid, "ENDSTATEMENT\n", (getstrlen("ENDSTATEMENT\n") - 1) : u64)
+		parse_layer--
 		return NULL
 	}
 
@@ -113,18 +155,18 @@ func gimpf(u8* fn, mut u8* block) : u8* {
 	return block
 }
 
-func parse(u8* f) {
-	mut u64 e = getstrlen(f)
+func parse() {
+	mut u64 e = getstrlen(fin)
 	mut u64 p = 0
 
 	//loop lines
 	while (p <= e) {
-		u64 llen = getlinelen((f+p))
+		u64 llen = getlinelen((fin+p))
 		mut u8* l = malloc(llen)
 
 		mut u64 i = 0
 		while (i != (llen - 1)) {
-			l[i] = (f+p)[i]
+			l[i] = (fin+p)[i]
 			i++
 		}
 		l[i] = 0
@@ -140,7 +182,7 @@ func parse(u8* f) {
 			mut u64 p1 = 0
 			mut u64 p2 = 0
 			while (p2 != p) {
-				block[p1++] = f[p2++]
+				block[p1++] = fin[p2++]
 			}
 			p2 = 0
 			while (p2 != fimps-1) {
@@ -148,18 +190,14 @@ func parse(u8* f) {
 			}
 			p2 = p + llen
 			while (p2 != e+1) {
-				block[p1++] = f[p2++]
+				block[p1++] = fin[p2++]
 			}
-
-			printf("%s", block)
-
-			//Next part
 			
 			free(fimp)
 
-			free(f)
-			f = block
-			e = getstrlen(f)
+			free(fin)
+			fin = block
+			e = getstrlen(fin)
 		}
 		
 		free(l)
@@ -196,21 +234,26 @@ func main(i32 argc, u8** args) : i32 {
 	foutmid = malloc((getstrlen(args[1]) + getstrlen(".midpoint") - 1) : u64)
 	strcpy(foutmid, args[1])
 	strcat(foutmid, ".midpoint")
+	u64* f = fopen(foutmid, "w")
+    fclose(f)
 
 	foutc = malloc((getstrlen(args[1]) + getstrlen(".c") - 1) : u64)
 	strcpy(foutc, args[1])
 	strcat(foutc, ".c")
+	f = fopen(foutc, "w")
+    fclose(f)
 
 
 	fin = fget(args[1])
 
-	//parse(fin)
+	parse()
 
 	mut u8* cmd = malloc(getstrlen(gcc_args) + getstrlen(foutc) + getstrlen("gcc "))
 	strcpy(cmd, "gcc ")
 	strcat(cmd, foutc)
 	strcat(cmd, " ")
 	strcat(cmd, gcc_args)
+
 	printf("\nCompile with: %s\n\n", cmd)
 	//system(cmd)
 	free(cmd)

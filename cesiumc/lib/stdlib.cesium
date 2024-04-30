@@ -25,9 +25,11 @@ func printbool(bool v) {
 	}
 }
 
-func append(u8* fn, u8 block, u64 size) : i32 {
-	u64 f = fopen(fn, "a")
+
+func append(u8* fn, u8* block, u64 size) : i32 {
+	u64* f = fopen(fn, "a")
 	fwrite(block, 1, size, f)
+    fclose(f)
 	return 0
 }
 
