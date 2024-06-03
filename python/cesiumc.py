@@ -336,7 +336,7 @@ def compile_line(line):
 		output += do_block(parts)
 		return output
 
-	if parts[0] == "import":
+	if parts[0] == "#import":
 		global list_of_lines
 		im = ""
 
