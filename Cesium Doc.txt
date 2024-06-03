@@ -48,9 +48,9 @@ Keywords:
 		volital	-	Volital.
 		
 	Compile time(Macro and const will not be in the placeholder compiler):
-		import	-	Include other file.
-		const	-	Define a compile time value.
-		macro	-	Macro's used at compile time.
+		#import	-	Include other file.
+		#const	-	Define a compile time value.
+		#macro	-	Macro's used at compile time.
 		
 	Objects: - not going to be in pre version
 		class 	-	Declare a class. Usage: class <name> <<Inheratance>>
